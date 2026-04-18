@@ -1,26 +1,137 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #fff8f3;
+  --bg-accent: #e8f7ff;
+  --text: #1c1917;
+  --text-muted: #57534e;
+  --coral: #ff6b4a;
+  --coral-soft: #ffe8e3;
+  --sky: #38bdf8;
+  --sky-soft: #e0f4ff;
+  --mint: #34d399;
+  --mint-soft: #d1fae5;
+  --sun: #fbbf24;
+  --lavender: #c4b5fd;
+  --surface: #ffffff;
+  --surface-warm: #fffdfb;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: var(--bg);
+  --font-sans: var(--font-body);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.font-display {
+  font-family: var(--font-display), ui-sans-serif, system-ui;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(ellipse 900px 500px at 85% -5%, rgba(255, 182, 193, 0.45), transparent 55%),
+    radial-gradient(ellipse 900px 500px at 5% 10%, rgba(125, 211, 252, 0.5), transparent 50%),
+    radial-gradient(ellipse 700px 400px at 50% 100%, rgba(167, 243, 208, 0.35), transparent 55%),
+    linear-gradient(180deg, #fffef9 0%, var(--bg) 40%, #f0f9ff 100%);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* 필터·입력 */
+.trip-input {
+  border: 2px solid rgba(56, 189, 248, 0.35);
+  background: var(--surface);
+  border-radius: 9999px;
+  box-shadow:
+    0 2px 10px rgba(251, 146, 60, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.1s ease;
+}
+
+.trip-input:hover:not(:disabled) {
+  border-color: rgba(34, 211, 238, 0.55);
+}
+
+.trip-input:focus-visible {
+  border-color: var(--coral);
+  box-shadow:
+    0 0 0 3px rgba(255, 107, 74, 0.2),
+    0 4px 12px rgba(56, 189, 248, 0.15);
+}
+
+.trip-input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* 랜덤 뽑기 메인 CTA */
+.trip-btn-primary {
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #ff6b4a 0%, #ff8e53 50%, #fbbf24 100%);
+  color: #fff;
+  font-weight: 700;
+  box-shadow:
+    0 4px 12px rgba(255, 107, 74, 0.35),
+    0 2px 0 rgba(255, 255, 255, 0.25) inset;
+  border: none;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    filter 0.15s ease;
+}
+
+.trip-btn-primary:hover:not(:disabled) {
+  filter: brightness(1.05);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow:
+    0 8px 20px rgba(255, 107, 74, 0.4),
+    0 2px 0 rgba(255, 255, 255, 0.25) inset;
+}
+
+.trip-btn-primary:active:not(:disabled) {
+  transform: translateY(0) scale(1);
+}
+
+.trip-btn-primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 카드 */
+.trip-card {
+  background: var(--surface-warm);
+  border-radius: 1.5rem;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  box-shadow:
+    0 4px 24px rgba(251, 146, 60, 0.08),
+    0 4px 12px rgba(56, 189, 248, 0.06);
+}
+
+.trip-card-aside {
+  background: linear-gradient(165deg, #fff 0%, #fff7f0 55%, #f0f9ff 100%);
+  border-radius: 1.5rem;
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  box-shadow:
+    0 8px 32px rgba(244, 114, 182, 0.12),
+    0 2px 8px rgba(56, 189, 248, 0.08);
+}
+
+/* 상세 HTML */
+.prose-trip {
+  color: var(--text-muted);
+}
+
+.prose-trip a {
+  color: #0284c7;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.prose-trip p {
+  margin-bottom: 0.75rem;
 }
