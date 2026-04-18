@@ -176,30 +176,25 @@ export function TripExplorer() {
   return (
     <div className="relative mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 md:px-6 md:py-10">
       <header className="relative space-y-4">
-        <div className="inline-flex items-center gap-2 rounded-full border-2 border-white bg-white/80 px-4 py-1.5 text-sm font-semibold text-orange-600 shadow-sm backdrop-blur-sm">
-          <span className="text-lg leading-none" aria-hidden>
-            ✈️
-          </span>
-          <span className="tracking-wide">국내 여행 · 랜덤 스팟</span>
+        <div className="inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-1 text-xs font-semibold text-[var(--text-sub)]">
+          국내 여행지 · 무작위 추천
         </div>
         <div className="space-y-2">
-          <h1 className="font-display max-w-xl text-4xl font-extrabold leading-[1.15] tracking-tight md:text-5xl">
-            <span className="bg-gradient-to-r from-orange-500 via-rose-500 to-sky-500 bg-clip-text text-transparent">
-              오늘은 어디로
-            </span>
+          <h1 className="max-w-xl text-3xl font-bold leading-[1.2] tracking-tight text-[var(--text)] md:text-4xl">
+            지역을 고르고
             <br />
-            <span className="text-stone-800">떠날까?</span>
+            여행지를 추천받으세요
           </h1>
-          <p className="max-w-2xl text-base leading-relaxed text-stone-600 md:text-lg">
-            지역만 고르면 지도에 핀이 쫙!{" "}
-            <span className="font-semibold text-orange-500">랜덤 뽑기</span>로 오늘의 코스를 정해 봐요.
+          <p className="max-w-2xl text-base leading-relaxed text-[var(--text-sub)] md:text-[17px]">
+            시·도와 시군구를 선택하면 지도에 표시됩니다.{" "}
+            <span className="font-semibold text-[var(--text)]">무작위 추천</span>으로 한 곳을 골라 보세요.
           </p>
         </div>
       </header>
 
       {error ? (
         <div
-          className="rounded-2xl border-2 border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-800 shadow-sm"
+          className="rounded-2xl border border-[var(--danger-border)] bg-[var(--danger-bg)] px-4 py-3 text-sm font-medium text-[var(--danger-text)]"
           role="alert"
         >
           {error}
@@ -209,19 +204,19 @@ export function TripExplorer() {
       <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,360px)] lg:items-start">
         <div className="space-y-5">
           <div className="trip-card p-5 md:p-6">
-            <p className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-sky-600">
-              필터
+            <p className="mb-4 text-xs font-semibold tracking-wide text-[var(--text-tertiary)]">
+              조건
             </p>
             <div className="flex flex-wrap items-end gap-4">
-              <label className="flex min-w-[140px] flex-col gap-2 text-xs font-bold text-stone-500">
-                시 · 도
+              <label className="flex min-w-[140px] flex-col gap-2 text-xs font-semibold text-[var(--text-sub)]">
+                시·도
                 <select
-                  className="trip-input px-4 py-2.5 text-sm font-medium text-stone-800"
+                  className="trip-input px-4 py-2.5 text-sm font-medium text-[var(--text)]"
                   value={areaCode}
                   onChange={(e) => onAreaChange(e.target.value)}
                   disabled={loading.areas}
                 >
-                  <option value="">어디부터?</option>
+                  <option value="">선택</option>
                   {areas.map((a) => (
                     <option key={a.code} value={a.code}>
                       {a.name}
@@ -229,10 +224,10 @@ export function TripExplorer() {
                   ))}
                 </select>
               </label>
-              <label className="flex min-w-[140px] flex-col gap-2 text-xs font-bold text-stone-500">
+              <label className="flex min-w-[140px] flex-col gap-2 text-xs font-semibold text-[var(--text-sub)]">
                 시군구
                 <select
-                  className="trip-input px-4 py-2.5 text-sm font-medium text-stone-800"
+                  className="trip-input px-4 py-2.5 text-sm font-medium text-[var(--text)]"
                   value={sigunguCode}
                   onChange={(e) => setSigunguCode(e.target.value)}
                   disabled={!areaCode || loading.sigungu}
@@ -245,10 +240,10 @@ export function TripExplorer() {
                   ))}
                 </select>
               </label>
-              <label className="flex min-w-[160px] flex-col gap-2 text-xs font-bold text-stone-500">
+              <label className="flex min-w-[160px] flex-col gap-2 text-xs font-semibold text-[var(--text-sub)]">
                 유형
                 <select
-                  className="trip-input px-4 py-2.5 text-sm font-medium text-stone-800"
+                  className="trip-input px-4 py-2.5 text-sm font-medium text-[var(--text)]"
                   value={contentTypeId}
                   onChange={(e) => setContentTypeId(e.target.value)}
                 >
@@ -269,7 +264,7 @@ export function TripExplorer() {
                 disabled={places.length === 0 || loading.places}
                 className="trip-btn-primary ml-auto px-5 py-3 text-sm disabled:opacity-40"
               >
-                🎲 랜덤 뽑기
+                무작위 추천
               </button>
             </div>
           </div>
@@ -283,40 +278,35 @@ export function TripExplorer() {
           />
 
           <div className="space-y-1">
-            <p className="text-sm font-medium text-stone-500">
+            <p className="text-sm font-medium text-[var(--text-sub)]">
               {loading.places
-                ? "목록 불러오는 중…"
+                ? "목록을 불러오는 중입니다."
                 : areaCode
-                  ? `지도에 ${places.length}곳 (최대 200건/요청)`
-                  : "지역을 고르면 지도에 표시돼요."}
+                  ? `표시 ${places.length}곳 · 요청당 최대 200건`
+                  : "시·도를 선택하면 지도에 표시됩니다."}
             </p>
             {!loading.places && areaCode && places.length === 0 ? (
-              <p className="text-sm font-medium text-amber-700">
-                이 조건에 맞는 곳이 없어요. 유형을 바꿔 보세요!
+              <p className="text-sm font-medium text-[var(--danger-text)]">
+                조건에 맞는 장소가 없습니다. 유형을 바꿔 보세요.
               </p>
             ) : null}
           </div>
         </div>
 
         <aside className="trip-card-aside sticky top-6 space-y-4 p-6">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl" aria-hidden>
-              📍
-            </span>
-            <h2 className="font-display text-xl font-bold text-stone-800">이번 스팟</h2>
-          </div>
+          <h2 className="text-lg font-bold text-[var(--text)]">선택한 장소</h2>
           {!selected ? (
-            <p className="text-sm leading-relaxed text-stone-500">
-              지도에서 핀을 누르거나 <span className="font-semibold text-orange-500">랜덤 뽑기</span>로 골라
-              봐요.
+            <p className="text-sm leading-relaxed text-[var(--text-sub)]">
+              지도에서 마커를 누르거나 <span className="font-semibold text-[var(--text)]">무작위 추천</span>을
+              눌러 주세요.
             </p>
           ) : detailLoading ? (
-            <p className="text-sm font-medium text-sky-600">상세 불러오는 중…</p>
+            <p className="text-sm font-medium text-[var(--primary)]">상세 정보를 불러오는 중입니다.</p>
           ) : (
             <div className="space-y-4">
               <div>
-                <h3 className="text-xl font-bold leading-snug text-stone-900">{selected.title}</h3>
-                <p className="mt-1 text-xs text-stone-400">
+                <h3 className="text-xl font-bold leading-snug text-[var(--text)]">{selected.title}</h3>
+                <p className="mt-1 text-xs text-[var(--text-tertiary)]">
                   ID {selected.contentid} · 타입 {selected.contenttypeid}
                 </p>
               </div>
@@ -325,29 +315,33 @@ export function TripExplorer() {
                 <img
                   src={selected.firstimage}
                   alt=""
-                  className="max-h-48 w-full rounded-2xl object-cover ring-2 ring-white shadow-md"
+                  className="max-h-48 w-full rounded-2xl border border-[var(--border)] object-cover shadow-sm"
                 />
               ) : null}
-              <dl className="space-y-3 text-sm text-stone-600">
+              <dl className="space-y-3 text-sm text-[var(--text-sub)]">
                 <div>
-                  <dt className="text-xs font-bold uppercase tracking-wider text-stone-400">
+                  <dt className="text-xs font-semibold tracking-wide text-[var(--text-tertiary)]">
                     주소
                   </dt>
-                  <dd className="font-medium">{detail?.common?.addr1 ?? selected.addr1 ?? "—"}</dd>
+                  <dd className="font-medium text-[var(--text)]">
+                    {detail?.common?.addr1 ?? selected.addr1 ?? "—"}
+                  </dd>
                 </div>
                 <div>
-                  <dt className="text-xs font-bold uppercase tracking-wider text-stone-400">
+                  <dt className="text-xs font-semibold tracking-wide text-[var(--text-tertiary)]">
                     전화
                   </dt>
-                  <dd className="font-medium">{detail?.common?.tel ?? selected.tel ?? "—"}</dd>
+                  <dd className="font-medium text-[var(--text)]">
+                    {detail?.common?.tel ?? selected.tel ?? "—"}
+                  </dd>
                 </div>
                 {detail?.common?.homepage ? (
                   <div>
-                    <dt className="text-xs font-bold uppercase tracking-wider text-stone-400">
+                    <dt className="text-xs font-semibold tracking-wide text-[var(--text-tertiary)]">
                       홈페이지
                     </dt>
                     <dd
-                      className="break-all font-medium text-sky-600 underline-offset-2 hover:underline"
+                      className="break-all font-medium text-[var(--primary)] underline-offset-2 hover:underline"
                       dangerouslySetInnerHTML={{ __html: detail.common.homepage }}
                     />
                   </div>
@@ -355,27 +349,27 @@ export function TripExplorer() {
               </dl>
               {overviewHtml ? (
                 <div>
-                  <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-stone-400">
+                  <h4 className="mb-2 text-xs font-semibold tracking-wide text-[var(--text-tertiary)]">
                     소개
                   </h4>
                   <div
-                    className="prose-trip max-h-[320px] overflow-y-auto rounded-xl bg-white/60 p-3 text-sm leading-relaxed"
+                    className="prose-trip max-h-[320px] overflow-y-auto rounded-xl border border-[var(--border)] bg-[var(--bg)] p-3 text-sm leading-relaxed"
                     dangerouslySetInnerHTML={{ __html: overviewHtml }}
                   />
                 </div>
               ) : null}
               {detail?.intro && Object.keys(detail.intro).length > 0 ? (
                 <div>
-                  <h4 className="mb-2 text-xs font-bold uppercase tracking-wider text-stone-400">
+                  <h4 className="mb-2 text-xs font-semibold tracking-wide text-[var(--text-tertiary)]">
                     운영 · 안내
                   </h4>
-                  <ul className="space-y-1 text-sm text-stone-600">
+                  <ul className="space-y-1 text-sm text-[var(--text-sub)]">
                     {Object.entries(detail.intro)
                       .filter(([, v]) => v && String(v).trim() !== "")
                       .slice(0, 12)
                       .map(([k, v]) => (
                         <li key={k}>
-                          <span className="text-stone-400">{k}</span>: {v}
+                          <span className="text-[var(--text-tertiary)]">{k}</span>: {v}
                         </li>
                       ))}
                   </ul>
@@ -390,7 +384,7 @@ export function TripExplorer() {
                         key={`${im.originimgurl}-${i}`}
                         src={im.originimgurl}
                         alt={im.imgname ?? ""}
-                        className="h-24 w-full rounded-xl object-cover ring-2 ring-white shadow-sm"
+                        className="h-24 w-full rounded-xl border border-[var(--border)] object-cover shadow-sm"
                       />
                     ) : null
                   )}
