@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import Script from "next/script";
 import { parseTourLatLng } from "@/lib/coords";
-import { KOREA_OVERVIEW, getAreaCenter } from "@/lib/korea-region-centers";
+import { KOREA_OVERVIEW, resolveProvinceCenter } from "@/lib/korea-region-centers";
 import { mapLog } from "@/lib/map-debug";
 import type { TourPlaceItem } from "@/lib/tour-types";
 
@@ -62,12 +62,15 @@ export function KakaoMapView({
   focusContentId,
   onSelectPlace,
   areaCode,
+  areaName,
   sigunguCode,
 }: {
   places: TourPlaceItem[];
   focusContentId: string | null;
   onSelectPlace: (p: TourPlaceItem) => void;
   areaCode: string;
+  /** 시·도 선택 드롭다운의 한글명(지역코드와 불일치 시 지도 중심 보정용) */
+  areaName?: string;
   sigunguCode: string;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -230,13 +233,18 @@ export function KakaoMapView({
       return;
     }
 
-    const province = getAreaCenter(areaCode);
+    const province = resolveProvinceCenter(areaCode, areaName);
 
     if (!sigunguCode) {
       if (province) {
         map.setCenter(new kakao.maps.LatLng(province.lat, province.lng));
         map.setLevel(province.level);
-        mapLog("regionView", { mode: "province_center", areaCode, level: province.level });
+        mapLog("regionView", {
+          mode: "province_center",
+          areaCode,
+          areaName: areaName ?? "",
+          level: province.level,
+        });
       } else {
         const coords: { lat: number; lng: number }[] = [];
         for (const p of places) {
@@ -282,10 +290,10 @@ export function KakaoMapView({
     } else if (province) {
       map.setCenter(new kakao.maps.LatLng(province.lat, province.lng));
       map.setLevel(9);
-      mapLog("regionView", { mode: "sigungu_fallback_province", areaCode });
+      mapLog("regionView", { mode: "sigungu_fallback_province", areaCode, areaName: areaName ?? "" });
     }
     window.requestAnimationFrame(() => map.relayout());
-  }, [areaCode, sigunguCode, places, focusContentId]);
+  }, [areaCode, areaName, sigunguCode, places, focusContentId]);
 
   useEffect(() => {
     if (!focusContentId) return;

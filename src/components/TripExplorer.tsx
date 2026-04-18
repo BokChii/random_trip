@@ -2,6 +2,12 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { KakaoMapView } from "@/components/KakaoMapView";
+import { TripPickHistory } from "@/components/TripPickHistory";
+import {
+  addTripHistoryFromPlace,
+  getTripHistory,
+  type TripHistoryEntry,
+} from "@/lib/trip-history";
 import type { TourPlaceItem } from "@/lib/tour-types";
 
 type AreaRow = { code: string; name: string };
@@ -35,6 +41,12 @@ export function TripExplorer() {
 
   const [loading, setLoading] = useState({ areas: true, sigungu: false, places: false });
   const [error, setError] = useState<string | null>(null);
+  const [pickHistory, setPickHistory] = useState<TripHistoryEntry[]>([]);
+
+  const areaName = useMemo(
+    () => areas.find((a) => a.code === areaCode)?.name ?? "",
+    [areas, areaCode]
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -55,6 +67,12 @@ export function TripExplorer() {
     return () => {
       cancelled = true;
     };
+  }, []);
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      setPickHistory(getTripHistory());
+    });
   }, []);
 
   const onAreaChange = useCallback((value: string) => {
@@ -165,6 +183,7 @@ export function TripExplorer() {
     const p = places[idx];
     setSelected(p);
     setFocusId(p.contentid);
+    setPickHistory(addTripHistoryFromPlace(p));
   }, [places]);
 
   const overviewHtml = useMemo(() => {
@@ -274,8 +293,11 @@ export function TripExplorer() {
             focusContentId={focusId}
             onSelectPlace={onSelectPlace}
             areaCode={areaCode}
+            areaName={areaName}
             sigunguCode={sigunguCode}
           />
+
+          <TripPickHistory entries={pickHistory} />
 
           <div className="space-y-1">
             <p className="text-sm font-medium text-[var(--text-sub)]">
