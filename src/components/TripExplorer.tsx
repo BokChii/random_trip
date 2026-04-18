@@ -274,7 +274,13 @@ export function TripExplorer() {
             </div>
           </div>
 
-          <KakaoMapView places={places} focusContentId={focusId} onSelectPlace={onSelectPlace} />
+          <KakaoMapView
+            places={places}
+            focusContentId={focusId}
+            onSelectPlace={onSelectPlace}
+            areaCode={areaCode}
+            sigunguCode={sigunguCode}
+          />
 
           <div className="space-y-1">
             <p className="text-sm font-medium text-stone-500">

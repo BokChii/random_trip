@@ -3,12 +3,14 @@
 import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 import Script from "next/script";
 import { parseTourLatLng } from "@/lib/coords";
+import { KOREA_OVERVIEW, getAreaCenter } from "@/lib/korea-region-centers";
 import type { TourPlaceItem } from "@/lib/tour-types";
 
 type KakaoMapInstance = {
   setCenter: (latlng: unknown) => void;
   setLevel: (level: number) => void;
   relayout: () => void;
+  setBounds: (bounds: unknown) => void;
 };
 
 type KakaoMarkerInstance = {
@@ -16,10 +18,15 @@ type KakaoMarkerInstance = {
   setPosition: (p: unknown) => void;
 };
 
+type KakaoLatLngBounds = {
+  extend: (latlng: unknown) => void;
+};
+
 type KakaoNamespace = {
   maps: {
     Map: new (container: HTMLElement, options: { center: unknown; level: number }) => KakaoMapInstance;
     LatLng: new (lat: number, lng: number) => unknown;
+    LatLngBounds: new () => KakaoLatLngBounds;
     Marker: new (options: { position: unknown; map?: unknown }) => KakaoMarkerInstance;
     event: {
       addListener: (
@@ -42,8 +49,6 @@ declare global {
   }
 }
 
-const DEFAULT_CENTER = { lat: 36.3553, lng: 127.3845 };
-
 function placeKey(p: TourPlaceItem) {
   return `${p.contentid}-${p.contenttypeid}`;
 }
@@ -52,10 +57,14 @@ export function KakaoMapView({
   places,
   focusContentId,
   onSelectPlace,
+  areaCode,
+  sigunguCode,
 }: {
   places: TourPlaceItem[];
   focusContentId: string | null;
   onSelectPlace: (p: TourPlaceItem) => void;
+  areaCode: string;
+  sigunguCode: string;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<KakaoMapInstance | null>(null);
@@ -112,7 +121,6 @@ export function KakaoMapView({
     const el = containerRef.current;
     if (!kakao?.maps || !el) return;
 
-    // 부모에 height가 없을 때 h-full이 0이 되어 지도가 빈 화면으로 나오는 경우 방지
     const rect = el.getBoundingClientRect();
     if (rect.width < 2 || rect.height < 2) {
       initAttemptsRef.current += 1;
@@ -128,8 +136,8 @@ export function KakaoMapView({
       return;
     }
 
-    const center = new kakao.maps.LatLng(DEFAULT_CENTER.lat, DEFAULT_CENTER.lng);
-    const map = new kakao.maps.Map(el, { center, level: 12 });
+    const center = new kakao.maps.LatLng(KOREA_OVERVIEW.lat, KOREA_OVERVIEW.lng);
+    const map = new kakao.maps.Map(el, { center, level: KOREA_OVERVIEW.level });
     mapRef.current = map;
     mapCreatedRef.current = true;
     syncMarkers();
@@ -161,6 +169,72 @@ export function KakaoMapView({
   useEffect(() => {
     syncMarkers();
   }, [syncMarkers]);
+
+  /** 시·도 / 시군구에 맞춰 지도 뷰 이동 (랜덤 포커스와 별개) */
+  useEffect(() => {
+    if (focusContentId) return;
+    const kakao = window.kakao;
+    const map = mapRef.current;
+    if (!kakao?.maps || !map) return;
+    if (infoRef.current) infoRef.current.close();
+
+    if (!areaCode) {
+      map.setCenter(new kakao.maps.LatLng(KOREA_OVERVIEW.lat, KOREA_OVERVIEW.lng));
+      map.setLevel(KOREA_OVERVIEW.level);
+      window.requestAnimationFrame(() => map.relayout());
+      return;
+    }
+
+    const province = getAreaCenter(areaCode);
+
+    if (!sigunguCode) {
+      if (province) {
+        map.setCenter(new kakao.maps.LatLng(province.lat, province.lng));
+        map.setLevel(province.level);
+      } else {
+        const coords: { lat: number; lng: number }[] = [];
+        for (const p of places) {
+          const ll = parseTourLatLng(p.mapx, p.mapy);
+          if (ll) coords.push(ll);
+        }
+        if (coords.length >= 2) {
+          const bounds = new kakao.maps.LatLngBounds();
+          for (const c of coords) {
+            bounds.extend(new kakao.maps.LatLng(c.lat, c.lng));
+          }
+          map.setBounds(bounds);
+        } else if (coords.length === 1) {
+          const c = coords[0];
+          map.setCenter(new kakao.maps.LatLng(c.lat, c.lng));
+          map.setLevel(9);
+        }
+      }
+      window.requestAnimationFrame(() => map.relayout());
+      return;
+    }
+
+    const coords: { lat: number; lng: number }[] = [];
+    for (const p of places) {
+      const ll = parseTourLatLng(p.mapx, p.mapy);
+      if (ll) coords.push(ll);
+    }
+
+    if (coords.length >= 2) {
+      const bounds = new kakao.maps.LatLngBounds();
+      for (const c of coords) {
+        bounds.extend(new kakao.maps.LatLng(c.lat, c.lng));
+      }
+      map.setBounds(bounds);
+    } else if (coords.length === 1) {
+      const c = coords[0];
+      map.setCenter(new kakao.maps.LatLng(c.lat, c.lng));
+      map.setLevel(8);
+    } else if (province) {
+      map.setCenter(new kakao.maps.LatLng(province.lat, province.lng));
+      map.setLevel(9);
+    }
+    window.requestAnimationFrame(() => map.relayout());
+  }, [areaCode, sigunguCode, places, focusContentId]);
 
   useEffect(() => {
     if (!focusContentId) return;
@@ -226,7 +300,6 @@ export function KakaoMapView({
           });
         }}
       />
-      {/* h-full 제거: 부모 높이 미지정 시 height 0 → 카카오맵 캔버스가 비어 보임 */}
       <div
         ref={containerRef}
         className="w-full overflow-hidden rounded-2xl border-[3px] border-white bg-sky-100 shadow-[0_8px_40px_rgba(14,165,233,0.15),0_4px_12px_rgba(251,146,60,0.12)] ring-2 ring-sky-200/80"
